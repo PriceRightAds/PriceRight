@@ -9,15 +9,21 @@ import {
     Paper,
     List,
     ListItem,
-    ListItemText,
-    IconButton
+    IconButton,
+    Divider,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { MovingCost, MovingItem } from './types';
 import { calculateTotalCost, formatAmount } from './utils/calculator';
 
 function App() {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const [cost, setCost] = useState<MovingCost>({
         movingFee: 0,
         stairsElevatorFee: 0,
@@ -55,6 +61,23 @@ function App() {
         setItems(newItems);
     };
 
+    const resetAll = () => {
+        setCost({
+            movingFee: 0,
+            stairsElevatorFee: 0,
+            protectionPackagingFee: 0,
+            disassemblyFee: 0,
+            disposalFee: 0,
+            cardboardBoxFee: 0,
+            packingUnpackingFee: 0,
+            holidayWeekendFee: 0,
+            distanceFee: 0,
+            additionalLocationFee: 0,
+            parkingTunnelFee: 0
+        });
+        setItems([]);
+    };
+
     const totalCost = calculateTotalCost(cost);
 
     return (
@@ -65,9 +88,19 @@ function App() {
                 </Typography>
 
                 <Paper sx={{ p: 3, mb: 3 }}>
-                    <Typography variant="h6" gutterBottom>
-                        搬運項目
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography variant="h6">
+                            搬運項目
+                        </Typography>
+                        <Button
+                            startIcon={<RefreshIcon />}
+                            onClick={resetAll}
+                            variant="outlined"
+                            color="error"
+                        >
+                            重置所有
+                        </Button>
+                    </Box>
                     <List>
                         {items.map((item, index) => (
                             <ListItem key={index} secondaryAction={
@@ -76,7 +109,7 @@ function App() {
                                 </IconButton>
                             }>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={4}>
+                                    <Grid item xs={12} sm={4}>
                                         <TextField
                                             fullWidth
                                             label="項目名稱"
@@ -84,7 +117,7 @@ function App() {
                                             onChange={(e) => updateItem(index, 'name', e.target.value)}
                                         />
                                     </Grid>
-                                    <Grid item xs={4}>
+                                    <Grid item xs={12} sm={4}>
                                         <TextField
                                             fullWidth
                                             type="number"
@@ -93,7 +126,7 @@ function App() {
                                             onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
                                         />
                                     </Grid>
-                                    <Grid item xs={4}>
+                                    <Grid item xs={12} sm={4}>
                                         <TextField
                                             fullWidth
                                             type="number"
@@ -222,10 +255,55 @@ function App() {
                         </Grid>
                     </Grid>
 
-                    <Box sx={{ mt: 3, textAlign: 'right' }}>
-                        <Typography variant="h5">
-                            總費用：{formatAmount(totalCost)}
-                        </Typography>
+                    <Divider sx={{ my: 3 }} />
+
+                    <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        gap: 2
+                    }}>
+                        <Box>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                搬運費總計：{formatAmount(cost.movingFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                行樓梯／轉電梯費：{formatAmount(cost.stairsElevatorFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                保護物料及包裝費：{formatAmount(cost.protectionPackagingFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                拆裝費總計：{formatAmount(cost.disassemblyFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                棄置費總計：{formatAmount(cost.disposalFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                訂購紙箱費：{formatAmount(cost.cardboardBoxFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                代客裝箱／拆箱服務費：{formatAmount(cost.packingUnpackingFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                公眾假期／星期六／日附加費：{formatAmount(cost.holidayWeekendFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                路程費：{formatAmount(cost.distanceFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                額外接收或運送地點附加費：{formatAmount(cost.additionalLocationFee)}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                停車場費及隧道費：{formatAmount(cost.parkingTunnelFee)}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: isMobile ? 'center' : 'right' }}>
+                            <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
+                                總費用：{formatAmount(totalCost)}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Paper>
             </Box>
